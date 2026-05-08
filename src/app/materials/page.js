@@ -79,6 +79,32 @@ export default function MaterialsPage() {
     }
   };
 
+  // NEW: Handle Upvoting and Downvoting
+  const handleVote = async (id, action) => {
+    try {
+      const response = await fetch("/api/materials", {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ id, action }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to register vote");
+      }
+
+      const updatedMaterial = await response.json();
+
+      // Instantly update the UI by replacing the old material data with the newly fetched data
+      setMaterials((prevMaterials) =>
+        prevMaterials.map((mat) => (mat._id === id ? updatedMaterial : mat))
+      );
+    } catch (err) {
+      // Use a simple alert for voting errors so it doesn't disrupt the whole page layout
+      alert(err.message);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6 font-sans">
@@ -191,6 +217,27 @@ export default function MaterialsPage() {
               {materials.map((mat) => (
                 <div key={mat._id} className="bg-white p-5 rounded-lg shadow border border-gray-100 flex flex-col sm:flex-row sm:items-center gap-4">
                   
+                  {/* Voting Block */}
+                  <div className="flex sm:flex-col items-center justify-center gap-1 bg-gray-50 p-2 rounded border border-gray-200 min-w-[50px]">
+                    <button
+                      onClick={() => handleVote(mat._id, "upvote")}
+                      className="text-gray-400 hover:text-blue-600 font-bold px-2 py-1 transition-colors text-lg"
+                      title="Upvote"
+                    >
+                      ▲
+                    </button>
+                    {/* Displaying Net Score (Upvotes - Downvotes) */}
+                    <span className={`font-bold text-sm ${(mat.upvotes || 0) - (mat.downvotes || 0) >= 0 ? 'text-gray-700' : 'text-red-600'}`}>
+                      {(mat.upvotes || 0) - (mat.downvotes || 0)}
+                    </span>
+                    <button
+                      onClick={() => handleVote(mat._id, "downvote")}
+                      className="text-gray-400 hover:text-red-600 font-bold px-2 py-1 transition-colors text-lg"
+                      title="Downvote"
+                    >
+                      ▼
+                    </button>
+                  </div>
 
                   {/* Material Details */}
                   <div className="flex-1">

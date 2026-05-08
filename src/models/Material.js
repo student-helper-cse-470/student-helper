@@ -17,6 +17,14 @@ const MaterialSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  upvotes: {
+    type: Number,
+    default: 0, // New field for positive ratings
+  },
+  downvotes: {
+    type: Number,
+    default: 0, // New field for negative ratings
+  },
   createdAt: {
     type: Date,
     default: Date.now,
