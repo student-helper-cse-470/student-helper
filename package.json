@@ -11,6 +11,7 @@
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "katex": "^0.16.45",
+    "mongodb": "^7.2.0",
     "mongoose": "^9.4.1",
     "next": "16.2.4",
     "react": "19.2.4",
