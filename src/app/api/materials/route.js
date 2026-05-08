@@ -56,3 +56,47 @@ export async function POST(request) {
   }
 }
 
+// PUT: Update votes for a material (Bulletproof Version)
+export async function PUT(request) {
+  try {
+    await connectToDatabase();
+    
+    const body = await request.json();
+    const { id, action } = body; 
+
+    if (!id || !action) {
+      return NextResponse.json(
+        { error: 'Missing material ID or action' }, 
+        { status: 400 }
+      );
+    }
+
+    // 1. Find the exact material document first
+    const material = await Material.findById(id);
+
+    if (!material) {
+      return NextResponse.json({ error: 'Material not found' }, { status: 404 });
+    }
+
+    // 2. Modify the values safely in JavaScript (handling missing fields gracefully)
+    if (action === 'upvote') {
+      material.upvotes = (material.upvotes || 0) + 1;
+    } else if (action === 'downvote') {
+      material.downvotes = (material.downvotes || 0) + 1;
+    } else {
+      return NextResponse.json(
+        { error: 'Invalid action. Must be upvote or downvote.' }, 
+        { status: 400 }
+      );
+    }
+
+    // 3. Save the document back to MongoDB
+    await material.save();
+
+    // 4. Return the guaranteed fresh document to the frontend
+    return NextResponse.json(material, { status: 200 });
+  } catch (error) {
+    console.error('Database PUT Error:', error);
+    return NextResponse.json({ error: 'Failed to update votes' }, { status: 500 });
+  }
+}
